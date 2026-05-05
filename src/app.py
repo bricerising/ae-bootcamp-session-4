@@ -101,6 +101,15 @@ capabilities = {
         "industry_verticals": ["Technology", "Financial Services", "Healthcare"],
         "capacity": 20,
         "consultants": ["charlotte.young@slalom.com", "henry.king@slalom.com"]
+    },
+    "Slalom Build": {
+        "description": "Product development, design thinking, and agile delivery for digital innovation",
+        "practice_area": "Technology",
+        "skill_levels": ["Emerging", "Proficient", "Advanced", "Expert"],
+        "certifications": ["Certified Product Manager", "SAFe Agilist", "Design Thinking Practitioner"],
+        "industry_verticals": ["Consumer Products", "Fintech", "Healthtech"],
+        "capacity": 35,
+        "consultants": ["marcus.thompson@slalom.com", "rachel.chen@slalom.com"]
     }
 }
 
@@ -111,8 +120,21 @@ def root():
 
 
 @app.get("/capabilities")
-def get_capabilities():
-    return capabilities
+def get_capabilities(practice_area: str = None, industry: str = None, search: str = None):
+    """Get capabilities with optional filtering"""
+    result = capabilities
+
+    if practice_area:
+        result = {k: v for k, v in result.items() if v["practice_area"].lower() == practice_area.lower()}
+
+    if industry:
+        result = {k: v for k, v in result.items() if any(industry.lower() in iv.lower() for iv in v["industry_verticals"])}
+
+    if search:
+        search_lower = search.lower()
+        result = {k: v for k, v in result.items() if search_lower in k.lower() or search_lower in v["description"].lower()}
+
+    return result
 
 
 @app.post("/capabilities/{capability_name}/register")
